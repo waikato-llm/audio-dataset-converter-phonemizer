@@ -33,7 +33,7 @@ setup(
         "audio_dataset_converter>=0.0.1",
         "phonemizer",
     ],
-    version="0.1.0",
+    version="0.0.1",
     author='Peter Reutemann',
     author_email='fracpete@waikato.ac.nz',
     entry_points={
