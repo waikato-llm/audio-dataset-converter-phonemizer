@@ -104,8 +104,6 @@ class BasePhonemizer(Phonemizer, abc.ABC):
             preserve_empty_lines=self.preserve_empty_lines,
             njobs=self.njobs)
         result = str(resp)
-        if self.logger().info(logging.INFO):
-            self.logger().info(result)
         return result
 
 
