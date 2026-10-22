@@ -7,7 +7,7 @@ For available languages see: https://github.com/espeak-ng/espeak-ng/blob/master/
 usage: ph-espeak [-h] [-l {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
                  [-N LOGGER_NAME] [--disable] [-L LANGUAGE] [--strip]
                  [--preserve_empty_lines] [--preserve_punctuation]
-                 [--njobs NJOBS] [--space_separated]
+                 [--njobs NJOBS] [-s]
 
 Uses the espeak backend of the phonemizer library:
 https://github.com/bootphon/phonemizer For available languages see:
@@ -32,6 +32,7 @@ options:
                         Whether to keep punctuation. (default: False)
   --njobs NJOBS         The number of jobs to execute in parallel. (default:
                         1)
-  --space_separated     Whether to separate phonemes with single-space and
+  -s, --space_separated
+                        Whether to separate phonemes with single-space and
                         words with double-space. (default: False)
 ```

@@ -57,7 +57,7 @@ class BasePhonemizer(Phonemizer, abc.ABC):
         parser.add_argument("--preserve_empty_lines", action="store_true", help="Whether to keep empty lines.")
         parser.add_argument("--preserve_punctuation", action="store_true", help="Whether to keep punctuation.")
         parser.add_argument("--njobs", type=int, help="The number of jobs to execute in parallel.", required=False, default=1)
-        parser.add_argument("--space_separated", action="store_true", help="Whether to separate phonemes with single-space and words with double-space.")
+        parser.add_argument("-s", "--space_separated", action="store_true", help="Whether to separate phonemes with single-space and words with double-space.")
         return parser
 
     def _apply_args(self, ns: argparse.Namespace):
