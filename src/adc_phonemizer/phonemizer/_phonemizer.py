@@ -2,6 +2,7 @@ import abc
 import argparse
 import logging
 
+import phonemizer.separator
 from phonemizer import phonemize
 from wai.logging import LOGGING_WARNING
 
@@ -13,7 +14,7 @@ class BasePhonemizer(Phonemizer, abc.ABC):
     Base phonemizer class.
     """
 
-    def __init__(self, language: str = None, strip: bool = None,
+    def __init__(self, language: str = None, strip: bool = None, space_separated: bool = None,
                  preserve_empty_lines: bool = None, preserve_punctuation: bool = None, njobs: int = None,
                  logger_name: str = None, logging_level: str = LOGGING_WARNING):
         """
@@ -23,6 +24,8 @@ class BasePhonemizer(Phonemizer, abc.ABC):
         :type language: str
         :param strip: whether to omit the last word and phone separators of a token
         :type strip: bool
+        :param space_separated: whether to separate phonemes with single-space and words with double-space
+        :type space_separated: bool
         :param preserve_punctuation: whether to preserve punctuation
         :type preserve_punctuation: bool
         :param preserve_empty_lines: whether to preserve empty lines
@@ -35,6 +38,7 @@ class BasePhonemizer(Phonemizer, abc.ABC):
         super().__init__(logger_name=logger_name, logging_level=logging_level)
         self.language = language
         self.strip = strip
+        self.space_separated = space_separated
         self.preserve_empty_lines = preserve_empty_lines
         self.preserve_punctuation = preserve_punctuation
         self.njobs = njobs
@@ -53,6 +57,7 @@ class BasePhonemizer(Phonemizer, abc.ABC):
         parser.add_argument("--preserve_empty_lines", action="store_true", help="Whether to keep empty lines.")
         parser.add_argument("--preserve_punctuation", action="store_true", help="Whether to keep punctuation.")
         parser.add_argument("--njobs", type=int, help="The number of jobs to execute in parallel.", required=False, default=1)
+        parser.add_argument("--space_separated", action="store_true", help="Whether to separate phonemes with single-space and words with double-space.")
         return parser
 
     def _apply_args(self, ns: argparse.Namespace):
@@ -68,6 +73,7 @@ class BasePhonemizer(Phonemizer, abc.ABC):
         self.preserve_empty_lines = ns.preserve_empty_lines
         self.preserve_punctuation = ns.preserve_punctuation
         self.njobs = ns.njobs
+        self.space_separated = ns.space_separated
 
     def initialize(self):
         """
@@ -85,6 +91,8 @@ class BasePhonemizer(Phonemizer, abc.ABC):
             self.preserve_punctuation = False
         if self.njobs is None:
             self.njobs = 1
+        if self.space_separated is None:
+            self.space_separated = False
 
     def _do_phonemize(self, text: str) -> str:
         """
@@ -95,6 +103,10 @@ class BasePhonemizer(Phonemizer, abc.ABC):
         :return: the processed string
         :rtype: str
         """
+        if self.space_separated:
+            separator = phonemizer.separator.Separator(phone=" ", word="  ")
+        else:
+            separator = phonemizer.separator.default_separator
         resp = phonemize(
             text,
             language=self.language,
@@ -102,7 +114,8 @@ class BasePhonemizer(Phonemizer, abc.ABC):
             strip=self.strip,
             preserve_punctuation=self.preserve_punctuation,
             preserve_empty_lines=self.preserve_empty_lines,
-            njobs=self.njobs)
+            njobs=self.njobs,
+            separator=separator)
         result = str(resp)
         return result
 
@@ -112,7 +125,7 @@ class Espeak(BasePhonemizer):
     Base phonemizer class.
     """
 
-    def __init__(self, language: str = None, strip: bool = None,
+    def __init__(self, language: str = None, strip: bool = None, space_separated: bool = None,
                  preserve_empty_lines: bool = None, preserve_punctuation: bool = None, njobs: int = None,
                  logger_name: str = None, logging_level: str = LOGGING_WARNING):
         """
@@ -122,6 +135,8 @@ class Espeak(BasePhonemizer):
         :type language: str
         :param strip: whether to omit the last word and phone separators of a token
         :type strip: bool
+        :param space_separated: whether to separate phonemes with single-spaces and words with double-spaces
+        :type space_separated: bool
         :param preserve_punctuation: whether to preserve punctuation
         :type preserve_punctuation: bool
         :param preserve_empty_lines: whether to preserve empty lines
@@ -132,7 +147,7 @@ class Espeak(BasePhonemizer):
         :type logging_level: str
         """
         super().__init__(language=language, strip=strip, preserve_empty_lines=preserve_empty_lines,
-                         preserve_punctuation=preserve_punctuation, njobs=njobs,
+                         preserve_punctuation=preserve_punctuation, njobs=njobs, space_separated=space_separated,
                          logger_name=logger_name, logging_level=logging_level)
         self._backend = "espeak"
 
